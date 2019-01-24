@@ -1,3 +1,12 @@
+/*
+	=========================================================================
+ 		Name			: 2048-C
+ 		Author			: Isuru Bandaranayake
+ 		Date			: 23/01/2019
+ 		Description		: CLI version of 2048 for Linux using C
+	=========================================================================
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -31,8 +40,10 @@ void pickColor(int n){
 }
 
 void print(int grid[][4]){
+	printf("\n");
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
+			printf(" ");
 			pickColor(grid[i][j]);
 			if(grid[i][j]!=0){
 				printf("%i",grid[i][j]);
@@ -40,7 +51,6 @@ void print(int grid[][4]){
 			}else
 				printSpaces(8);
 			pickColor(-1);
-			printf(" ");
 		}
 		printf("\n");
 	}
@@ -160,7 +170,7 @@ int check(int grid[][4]){
 			t[i][j]=grid[i][j];
 		}
 	}
-	return onKey('a',t)+onKey('s',t)+onKey('d',t)+onKey('w',t);
+	return onKey('h',t)+onKey('j',t)+onKey('k',t)+onKey('l',t);
 }
 
 void initialize(int grid[][4]){
@@ -178,7 +188,7 @@ void main(){
 	while(1){
 		system("clear");
 		print(grid);
-		printf("\nEnter A(Left) | S(Down) | W(Up) | D(Right) | x(Exit): ");
+		printf("\n Enter H(Left) | J(Down) | K(Up) | L(Right) | X(Exit): ");
 
 		if(onKey(getchar(),grid)==9)
 			break;
@@ -187,12 +197,12 @@ void main(){
 		if(t==9){
 			system("clear");
 			print(grid);
-			printf("You Win !\n");
+			printf("\n You Win !\n");
 			break;
 		}else if(t==0){
 			system("clear");
 			print(grid);
-			printf("Game Over !\n");
+			printf("\n Game Over !\n");
 			break;
 		}	
 		printf("\n");
