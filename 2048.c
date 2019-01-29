@@ -5,7 +5,7 @@
  		Date			: 23/01/2019
  		Description		: CLI version of 2048 for Linux using C
 	=========================================================================
- */
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +89,7 @@ void add(int grid[][4],int value){
 }
 
 int move(int grid[][4]){
+	int score = 0;
 	int moved = 0;
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
@@ -98,30 +99,35 @@ int move(int grid[][4]){
 				if(grid[i][j]!=0 && grid[i][k]!=0 && grid[i][j]==grid[i][k]){
 					grid[i][j]*=2;
 					grid[i][k]=0;
-					moved=1;
+					score+=grid[i][j];
+					moved = 1;
 					break;
 				}else if(grid[i][j]==0 && grid[i][k]!=0){
 					grid[i][j]=grid[i][k];
 					grid[i][k]=0;
-					moved=1;
+					moved = 1;
 				}else if(grid[i][j]!=0 && grid[i][k]==0 && j==0){
 					if(grid[i][j+2]!=grid[i][j+3] && grid[i][j]==grid[i][j+2]){
 						grid[i][j]*=2;
 						grid[i][j+2]=0;
+						score+=grid[i][j];
 					}else if(grid[i][j+2]==grid[i][j+3]){
 						grid[i][j+2]*=2;
 						grid[i][j+3]=0;
+						score+=grid[i][j+2];
 					}else if(grid[i][j+2]==0 && grid[i][j]==grid[i][j+3]){
 						grid[i][j]*=2;
 						grid[i][j+3]=0;
+						score+=grid[i][j];
 					}
-					moved=1;
+					moved = 1;
 					break;
 				}
 			}
 		}
-	}
-	return moved;
+	} 
+	if(moved == 1) add(grid,2);
+	return score;
 }
 
 void rotate(int n,int grid[][4]){
@@ -140,7 +146,7 @@ void rotate(int n,int grid[][4]){
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 int onKey(char c,int grid[][4]){
 	if(c=='x')
-		return 9;
+		return -1;
 	int t=0;
 	if(c=='h' || c=='H'){
 		t=move(grid);
@@ -157,20 +163,30 @@ int onKey(char c,int grid[][4]){
 		t=move(grid);
 		rotate(2,grid);
 	}
-	if(t==1) add(grid,2);
 	return t;
 }
 
 int check(int grid[][4]){
-	int t[4][4];
+	int moveAvailable = 0;
 	for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
 			if(grid[i][j]==2048)
 				return 9;
-			t[i][j]=grid[i][j];
+			if(moveAvailable==0){
+				if(grid[i][j]==0)
+					moveAvailable++;
+				else if(i<3 && grid[i+1][j]==grid[i][j])
+					moveAvailable++;
+				else if(j<3 && grid[i][j+1]==grid[i][j])
+					moveAvailable++;
+				else if(i>0 && grid[i-1][j]==grid[i][j])
+					moveAvailable++;
+				else if(j>0 && grid[i][j-1]==grid[i][j])
+					moveAvailable++;
+			}
 		}
 	}
-	return onKey('h',t)+onKey('j',t)+onKey('k',t)+onKey('l',t);
+	return moveAvailable;
 }
 
 void initialize(int grid[][4]){
@@ -184,25 +200,29 @@ void initialize(int grid[][4]){
 
 void main(){
 	int grid[4][4];
+	int score = 0;
 	initialize(grid);
 	while(1){
 		system("clear");
 		print(grid);
-		printf("\n Enter H(Left) | J(Down) | K(Up) | L(Right) | X(Exit): ");
+		printf("\n Score: %d\n Enter H(Left) | J(Down) | K(Up) | L(Right) | X(Exit): ",score);
 
-		if(onKey(getchar(),grid)==9)
+		int t = onKey(getchar(),grid);
+		if(t==-1)
 			break;
+		else
+			score+=t;
 		
-		int t = check(grid);
+		t = check(grid);
 		if(t==9){
 			system("clear");
 			print(grid);
-			printf("\n You Win !\n");
+			printf("\n Score: %d\n You Win !\n",score);
 			break;
 		}else if(t==0){
 			system("clear");
 			print(grid);
-			printf("\n Game Over !\n");
+			printf("\n Score: %d\n Game Over !\n",score);
 			break;
 		}	
 		printf("\n");
