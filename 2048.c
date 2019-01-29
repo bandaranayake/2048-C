@@ -148,17 +148,17 @@ int onKey(char c,int grid[][4]){
 	if(c=='x')
 		return -1;
 	int t=0;
-	if(c=='h' || c=='H'){
+	if(c=='h' || c=='H' || c=='a' || c=='A'){
 		t=move(grid);
-	}else if(c=='j' || c=='J'){
+	}else if(c=='j' || c=='J' || c=='s' || c=='S'){
 		rotate(3,grid);
 		t=move(grid);
 		rotate(1,grid);
-	}else if(c=='k' || c=='K'){
+	}else if(c=='k' || c=='K' || c=='w' || c=='W'){
 		rotate(1,grid);
 		t=move(grid);
 		rotate(3,grid);
-	}else if(c=='l' || c=='L'){
+	}else if(c=='l' || c=='L' || c=='d' || c=='D'){
 		rotate(2,grid);
 		t=move(grid);
 		rotate(2,grid);
@@ -205,7 +205,7 @@ void main(){
 	while(1){
 		system("clear");
 		print(grid);
-		printf("\n Score: %d\n Enter H(Left) | J(Down) | K(Up) | L(Right) | X(Exit): ",score);
+		printf("\n SCORE: %d\n ENTER A/H(Left) | S/J(Down) | W/K(Up) | D/L(Right) | X(Exit): ",score);
 
 		int t = onKey(getchar(),grid);
 		if(t==-1)
