@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 int nSpaces(int n)
 {
@@ -199,7 +200,7 @@ void rotate(int n, int grid[][4])
 
 int onKeyPress(char c, int grid[][4])
 {
-	if (c == 'x' || c == 'X')
+	if (c == 'q' || c == 'q')
 		return -1;
 	else if (c == 'r' || c == 'R')
 		return -2;
@@ -274,10 +275,26 @@ void menu()
 	system("clear");
 	printf(" 2048 - Game\n * Use h-j-k-l / w-a-s-d keys to move the tiles.\n * When two tiles with the same number touch, they merge into one.\n\n");
 	printf("\t      ^      \t\t      ^\n\t      k      \t\t      w\n\t< h       l >\t\t< a       d >\n\t      j      \t\t      s\n\t      v      \t\t      v\n\n");
-	printf(" * Commands: \n\t r - Restart\n\t x - Exit\n");
+	printf(" * Commands: \n\t r - Restart\n\t q - Exit\n");
 	printf("Press 'Enter' key to continue.. ");
 	char c;
 	scanf("%c", &c);
+}
+
+int getBestScore(char* path){
+	int i = 0;
+	if(access( path, R_OK ) == 0){
+		FILE* file = fopen (path, "r");
+		fscanf (file, "%d", &i);    
+		fclose (file); 
+	}
+	return i;
+}
+
+void setBestScore(char* path, int i){
+	FILE* file = fopen (path, "w");
+	fprintf (file, "%d", i);    
+	fclose (file); 
 }
 
 void main()
@@ -285,12 +302,13 @@ void main()
 	menu();
 	int grid[4][4];
 	int score = initialize(grid);
+	int bestScore = getBestScore("data.txt");
 	while (1)
 	{
 		system("clear");
 		print(grid);
 
-		printf("\n SCORE: %d\n ", score);
+		printf("\n BEST SCORE: %d\n SCORE: %d\n ", bestScore, score);
 		int t = onKeyPress(getchar(), grid);
 		if (t == -1)
 			break;
@@ -301,21 +319,23 @@ void main()
 		else
 			score += t;
 
+		if(score>bestScore) bestScore=score;
 		t = check(grid);
 		if (t == 9)
 		{
 			system("clear");
 			print(grid);
-			printf("\n Score: %d\n You Win !\n", score);
+			printf("\n BEST SCORE: %d\n Score: %d\n You Win !\n",bestScore, score);
 			break;
 		}
 		else if (t == 0)
 		{
 			system("clear");
 			print(grid);
-			printf("\n Score: %d\n Game Over !\n", score);
+			printf("\n BEST SCORE: %d\n Score: %d\n Game Over !\n",bestScore, score);
 			break;
 		}
 		printf("\n");
 	}
+	setBestScore("data.txt",bestScore);
 }
