@@ -196,9 +196,13 @@ void rotate(int rotations, int grid[][4])
 int onKeyPress(char c, int grid[][4], int *score)
 {
 	if (c == 'q' || c == 'q')
-		return -1;
-	else if (c == 'r' || c == 'R')
 		return 1;
+	else if (c == 'n' || c == 'N')
+		return 2;
+	else if(c == 'p' || c == 'P')
+		return 3;
+	else if(c == 'g' || c == 'G')
+		return 4;
 
 	int t = 0;
 	if (c == 'h' || c == 'H' || c == 'a' || c == 'A')
@@ -265,11 +269,11 @@ void initialize(int grid[][4])
 void menu()
 {
 	system("clear");
-	printf(" 2048 - Game\n * Use h-j-k-l / w-a-s-d keys to move the tiles.\n * When two tiles with the same number touch, they merge into one.\n\n\t      ^      \t\t      ^\n\t      k      \t\t      w\n\t< h       l >\t\t< a       d >\n\t      j      \t\t      s\n\t      v      \t\t      v\n\n * Commands: \n\t r - Restart\n\t q - Exit\nPress 'Enter' key to continue.. ");
+	printf(" 2048 - Game\n * Use h-j-k-l / w-a-s-d keys to move the tiles.\n * When two tiles with the same number touch, they merge into one.\n\n\t      ^      \t\t      ^\n\t      k      \t\t      w\n\t< h       l >\t\t< a       d >\n\t      j      \t\t      s\n\t      v      \t\t      v\n\n * Commands: \n\t n - New game\n\t p - Save game\n\t g - Load Game\n\t q - Exit\nPress 'Enter' key to continue.. ");
 	getchar();
 }
 
-int getBestScore(char* path){
+int getBestScore(char *path){
 	int score = 0;
 	if(access( path, R_OK ) == 0){
 		FILE* file = fopen (path, "r");
@@ -279,10 +283,31 @@ int getBestScore(char* path){
 	return score;
 }
 
-void setBestScore(char* path, int score){
+void setBestScore(char *path, int score){
 	FILE* file = fopen (path, "w");
 	fprintf (file, "%d", score);    
 	fclose (file); 
+}
+
+void save(int grid[][4], char *path, int score){
+	FILE* file = fopen (path, "w");
+	fprintf (file, "%d,", score); 
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			fprintf (file, "%d,", grid[i][j]); 
+	fclose (file); 
+}
+
+
+void load(int grid[][4], char *path, int *score){
+	if(access( path, R_OK ) == 0){
+		FILE* file = fopen (path, "r");
+		fscanf (file, "%d,", score); 
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				fscanf (file, "%d,", &grid[i][j]); 
+		fclose (file); 
+	}
 }
 
 void main()
@@ -290,7 +315,7 @@ void main()
 	menu();
 	int grid[4][4];
 	int score = 0;
-	int bestScore = getBestScore("data.txt");
+	int bestScore = getBestScore("data");
 	initialize(grid);
 
 	while (1)
@@ -300,11 +325,24 @@ void main()
 		printf("\n BEST SCORE: %d\n SCORE: %d\n ", bestScore, score);
 
 		int status = onKeyPress(getchar(), grid, &score);
-		if (status == -1)
+		if (status == 1)
 			break;
-		else if(status == 1){
+		else if(status == 2){
 			score = 0;
 			initialize(grid);
+			continue;
+		}
+		else if(status == 3){
+			char path[150];
+			printf("Save to: ");
+			scanf("%s",path);
+			save(grid,path,score);
+		}
+		else if(status == 4){
+			char path[150];
+			printf("Load from: ");
+			scanf("%s",path);
+			load(grid,path,&score);
 			continue;
 		}
 
@@ -326,5 +364,5 @@ void main()
 		}
 		printf("\n");
 	}
-	setBestScore("data.txt",bestScore);
+	setBestScore("data",bestScore);
 }
