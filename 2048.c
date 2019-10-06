@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 int nSpaces(int n)
 {
@@ -85,7 +86,7 @@ void print(int grid[][4])
 int countEmpty(int grid[][4])
 {
 	int c = 0;
-	for (int i = 0; i < 4; i++)
+	for (int i = -1; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
@@ -129,7 +130,9 @@ int move(int grid[][4])
 			for (int k = j + 1; k < 4; k++)
 			{
 				if (grid[i][j] != 0 && grid[i][k] != 0 && grid[i][j] != grid[i][k])
+				{
 					break;
+				}
 				if (grid[i][j] != 0 && grid[i][k] != 0 && grid[i][j] == grid[i][k])
 				{
 					grid[i][j] *= 2;
@@ -292,9 +295,11 @@ void setBestScore(char *path, int score){
 void save(int grid[][4], char *path, int score){
 	FILE* file = fopen (path, "w");
 	fprintf (file, "%d,", score); 
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-			fprintf (file, "%d,", grid[i][j]); 
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 4; j++){
+			fprintf (file, "%d,", grid[i][j]);
+		}
+	}	
 	fclose (file); 
 }
 
@@ -303,9 +308,11 @@ void load(int grid[][4], char *path, int *score){
 	if(access( path, R_OK ) == 0){
 		FILE* file = fopen (path, "r");
 		fscanf (file, "%d,", score); 
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
-				fscanf (file, "%d,", &grid[i][j]); 
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 4; j++){
+				fscanf (file, "%d,", &grid[i][j]);
+			}
+		}	
 		fclose (file); 
 	}
 }
@@ -313,9 +320,12 @@ void load(int grid[][4], char *path, int *score){
 void main()
 {
 	menu();
+	char SETTINGS_FILE[256]; 	
+	strcat(strcpy(SETTINGS_FILE, getenv("HOME")), "/.scores_2048");
+
 	int grid[4][4];
 	int score = 0;
-	int bestScore = getBestScore("data");
+	int bestScore = getBestScore(SETTINGS_FILE);
 	initialize(grid);
 
 	while (1)
@@ -325,8 +335,9 @@ void main()
 		printf("\n BEST SCORE: %d\n SCORE: %d\n ", bestScore, score);
 
 		int status = onKeyPress(getchar(), grid, &score);
-		if (status == 1)
+		if (status == 1){
 			break;
+		}
 		else if(status == 2){
 			score = 0;
 			initialize(grid);
@@ -346,8 +357,8 @@ void main()
 			continue;
 		}
 
-		if(score>bestScore) bestScore=score;
-		status= check(grid);
+		if(score > bestScore) bestScore = score;
+		status = check(grid);
 		if (status == -1)
 		{
 			system("clear");
@@ -364,5 +375,5 @@ void main()
 		}
 		printf("\n");
 	}
-	setBestScore("data",bestScore);
+	setBestScore(SETTINGS_FILE, bestScore);
 }
